@@ -1,0 +1,62 @@
+[
+  {
+    "post_id": "urn:li:activity:001",
+    "author_name": "Andrej Karpathy",
+    "author_headline": "AI Researcher",
+    "post_text": "The next wave of AI agents won't just generate text — they'll learn from feedback loops in real environments. Here's what I think that looks like...",
+    "post_url": "https://www.linkedin.com/posts/karpathy_001",
+    "timestamp": "2026-04-14T10:00:00Z",
+    "reaction_type": "love",
+    "comment_text": null,
+    "post_like_count": 4800,
+    "post_comment_count": 312
+  },
+  {
+    "post_id": "urn:li:activity:002",
+    "author_name": "Fei-Fei Li",
+    "author_headline": "Co-Director, Stanford HAI",
+    "post_text": "Spatial intelligence is the missing piece in AI systems today. We perceive and navigate 3D environments so effortlessly — machines still can't.",
+    "post_url": "https://www.linkedin.com/posts/feifeili_002",
+    "timestamp": "2026-04-13T15:30:00Z",
+    "reaction_type": null,
+    "comment_text": "I love this framing. Spatial reasoning has been underrated for so long.",
+    "post_like_count": 2200,
+    "post_comment_count": 145
+  },
+  {
+    "post_id": "urn:li:activity:003",
+    "author_name": "Yann LeCun",
+    "author_headline": "Chief AI Scientist at Meta",
+    "post_text": "LLMs are not enough. We need world models. Let me explain why current autoregressive approaches hit a ceiling...",
+    "post_url": "https://www.linkedin.com/posts/yannlecun_003",
+    "timestamp": "2026-04-12T08:00:00Z",
+    "reaction_type": "like",
+    "comment_text": "Interesting take. I'm not fully convinced but the world model argument is worth exploring.",
+    "post_like_count": 8900,
+    "post_comment_count": 520
+  },
+  {
+    "post_id": "urn:li:activity:004",
+    "author_name": "Sam Altman",
+    "author_headline": "CEO at OpenAI",
+    "post_text": "We are closer to AGI than most people think. I want to be transparent about the challenges and responsibilities that come with that.",
+    "post_url": "https://www.linkedin.com/posts/samaltman_004",
+    "timestamp": "2026-04-11T12:00:00Z",
+    "reaction_type": "celebrate",
+    "comment_text": null,
+    "post_like_count": 15000,
+    "post_comment_count": 900
+  },
+  {
+    "post_id": "urn:li:activity:005",
+    "author_name": "Cassie Kozyrkov",
+    "author_headline": "Chief Decision Scientist",
+    "post_text": "Stop calling everything AI. Most of what's labeled 'AI' in enterprise software today is just better search. Here's a taxonomy that actually helps...",
+    "post_url": "https://www.linkedin.com/posts/cassiekozyrkov_005",
+    "timestamp": "2026-04-15T09:00:00Z",
+    "reaction_type": "love",
+    "comment_text": "I love this breakdown. Sharing it with my whole team.",
+    "post_like_count": 3100,
+    "post_comment_count": 210
+  }
+]

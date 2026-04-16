@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python tests.py)",
+      "Bash(python newsletter.py --data ../data/sample_linkedin_activity.json)"
+    ]
+  }
+}
