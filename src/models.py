@@ -13,7 +13,9 @@ Expected LinkedIn export format (list of dicts or JSON array):
     "reaction_type": "love",          # null if no reaction
     "comment_text": null,             # null if no comment
     "post_like_count": 420,
-    "post_comment_count": 38
+    "post_comment_count": 38,
+    "is_own_post": false,             # true when this is Sam's own original article/post
+    "is_repost": false                # true when Sam reposted/reshared someone else's content
   },
   ...
 ]
@@ -36,6 +38,8 @@ class LinkedInPost:
     comment_text: Optional[str] = None
     post_like_count: int = 0
     post_comment_count: int = 0
+    is_own_post: bool = False              # True when this is Sam's own original article/post
+    is_repost: bool = False                # True when Sam reposted/reshared someone else's content
     tags: list = field(default_factory=list)
 
 

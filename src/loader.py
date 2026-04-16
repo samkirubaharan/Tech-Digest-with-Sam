@@ -31,6 +31,8 @@ def load(path: str | Path) -> list[LinkedInPost]:
             comment_text=item.get("comment_text"),
             post_like_count=item.get("post_like_count", 0),
             post_comment_count=item.get("post_comment_count", 0),
+            is_own_post=item.get("is_own_post", False),
+            is_repost=item.get("is_repost", False),
         ))
 
     return posts
