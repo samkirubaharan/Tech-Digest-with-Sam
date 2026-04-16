@@ -14,6 +14,7 @@ def make_post(
     post_id="p1",
     reaction_type=None,
     comment_text=None,
+    post_text="Some interesting post about AI.",
     post_like_count=100,
     post_comment_count=10,
     days_ago=1,
@@ -23,7 +24,7 @@ def make_post(
         post_id=post_id,
         author_name="Test Author",
         author_headline="CEO at TestCo",
-        post_text="Some interesting post about AI.",
+        post_text=post_text,
         post_url="https://linkedin.com/posts/test",
         timestamp=ts,
         reaction_type=reaction_type,
@@ -32,6 +33,10 @@ def make_post(
         post_comment_count=post_comment_count,
     )
 
+
+# ---------------------------------------------------------------------------
+# Love It
+# ---------------------------------------------------------------------------
 
 def test_love_reaction_tags():
     tp = tag_post(make_post(reaction_type="love"))
@@ -86,25 +91,219 @@ def test_rank_orders_by_score():
 
 def test_reaction_bonus_beats_comment_only():
     now = datetime.now(timezone.utc)
-    p_react  = make_post("r", reaction_type="love",  comment_text=None, post_like_count=100, days_ago=1)
+    p_react   = make_post("r", reaction_type="love", comment_text=None, post_like_count=100, days_ago=1)
     p_comment = make_post("c", reaction_type=None,   comment_text="I love this", post_like_count=100, days_ago=1)
-    from tagger import tag_post as tp_fn
-    tr = tp_fn(p_react)
-    tc = tp_fn(p_comment)
+    tr = tag_post(p_react)
+    tc = tag_post(p_comment)
     assert score(tr, now=now) > score(tc, now=now), "love reaction should outscore love comment at same engagement"
 
 def test_old_post_lower_score():
     now = datetime.now(timezone.utc)
     fresh = make_post("f", reaction_type="love", days_ago=1)
     stale = make_post("s", reaction_type="love", days_ago=6)
-    from tagger import tag_post as tp_fn
-    assert score(tp_fn(fresh), now=now) > score(tp_fn(stale), now=now)
+    assert score(tag_post(fresh), now=now) > score(tag_post(stale), now=now)
 
 def test_rank_fewer_than_n_posts():
     posts = [make_post("only", reaction_type="love")]
     tagged = filter_by_tag(tag_all(posts), "love_it")
     top = rank(tagged, top_n=2)
     assert len(top) == 1, "should return all available posts if fewer than top_n"
+
+
+# ---------------------------------------------------------------------------
+# Mr. & Mrs. Curious — tagging tests
+# ---------------------------------------------------------------------------
+
+def test_curious_direct_disagree():
+    tp = tag_post(make_post(comment_text="I disagree with this framing entirely."))
+    assert "mr_mrs_curious" in tp.tags
+
+def test_curious_i_dont_think_so():
+    tp = tag_post(make_post(comment_text="I don't think so — the evidence points the other way."))
+    assert "mr_mrs_curious" in tp.tags
+
+def test_curious_i_dont_buy_this():
+    tp = tag_post(make_post(comment_text="I don't buy this argument at all."))
+    assert "mr_mrs_curious" in tp.tags
+
+def test_curious_pushback():
+    tp = tag_post(make_post(comment_text="I'd push back on the second point here."))
+    assert "mr_mrs_curious" in tp.tags
+
+def test_curious_respectfully_disagree():
+    tp = tag_post(make_post(comment_text="Respectfully disagree — this misses the bigger picture."))
+    assert "mr_mrs_curious" in tp.tags
+
+def test_curious_id_argue():
+    tp = tag_post(make_post(comment_text="I'd argue there's a simpler explanation."))
+    assert "mr_mrs_curious" in tp.tags
+
+def test_curious_have_you_considered():
+    tp = tag_post(make_post(comment_text="Have you considered the regulatory angle?"))
+    assert "mr_mrs_curious" in tp.tags
+
+def test_curious_i_wonder_if():
+    tp = tag_post(make_post(comment_text="I wonder if this holds in non-English contexts."))
+    assert "mr_mrs_curious" in tp.tags
+
+def test_curious_what_about():
+    tp = tag_post(make_post(comment_text="What about the latency trade-offs though?"))
+    assert "mr_mrs_curious" in tp.tags
+
+def test_curious_variety():
+    phrases = [
+        "I strongly disagree with the premise.",
+        "Not sure I agree with the conclusion.",
+        "I'd suggest a different approach here.",
+        "On the other hand, the data tells a different story.",
+        "Actually, I think the opposite might be true.",
+        "Alternatively, you could frame it as a resource problem.",
+        "But what if the model is already overfitting?",
+        "Wouldn't it be more accurate to say it's correlation?",
+        "That's overstated in my view.",
+        "I think this is misleading.",
+        "The data doesn't support this claim.",
+    ]
+    for phrase in phrases:
+        tp = tag_post(make_post(comment_text=phrase))
+        assert "mr_mrs_curious" in tp.tags, f"Should tag mr_mrs_curious for: '{phrase}'"
+
+def test_curious_not_triggered_by_agreement():
+    phrases = [
+        "Totally agree, great post!",
+        "Well said, couldn't put it better.",
+        "This is exactly right.",
+        "Sharing this with my team.",
+    ]
+    for phrase in phrases:
+        tp = tag_post(make_post(comment_text=phrase))
+        assert "mr_mrs_curious" not in tp.tags, f"Should NOT tag mr_mrs_curious for: '{phrase}'"
+
+def test_curious_no_comment_not_tagged():
+    tp = tag_post(make_post(reaction_type="love"))
+    assert "mr_mrs_curious" not in tp.tags
+
+def test_curious_render_chat_structure():
+    from formatter import render_chat
+    post = make_post(comment_text="I don't think so — I'd argue the data says otherwise.")
+    post.author_name = "Elon Musk"
+    post.post_text   = "AI will solve everything by 2027."
+    tp = tag_post(post)
+    conv = render_chat(tp, section="mr_mrs_curious")
+    assert conv["section"] == "mr_mrs_curious"
+    assert len(conv["turns"]) == 2
+    assert conv["turns"][0]["speaker"] == "Elon Musk"
+    assert conv["turns"][1]["speaker"] == "Sam"
+
+def test_post_can_have_love_and_curious_tags():
+    tp = tag_post(make_post(comment_text="I love this take, though I'd argue the timeline is off."))
+    assert "love_it" in tp.tags
+    assert "mr_mrs_curious" in tp.tags
+
+
+# ---------------------------------------------------------------------------
+# The Byline — Sam's own original articles
+# PLACEHOLDER: logic will be updated once real export format is confirmed
+# ---------------------------------------------------------------------------
+
+def test_byline_tagged_when_is_own_post_true():
+    post = make_post()
+    post.is_own_post = True
+    tp = tag_post(post)
+    assert "the_byline" in tp.tags
+
+def test_byline_not_tagged_when_is_own_post_false():
+    post = make_post()
+    post.is_own_post = False
+    tp = tag_post(post)
+    assert "the_byline" not in tp.tags
+
+def test_byline_default_is_false():
+    # is_own_post defaults to False — should never tag by accident
+    tp = tag_post(make_post())
+    assert "the_byline" not in tp.tags
+
+def test_byline_does_not_interfere_with_other_tags():
+    post = make_post(reaction_type="love")
+    post.is_own_post = True
+    tp = tag_post(post)
+    assert "the_byline" in tp.tags
+    assert "love_it" in tp.tags
+
+
+# ---------------------------------------------------------------------------
+# Incoming — reposts of releases and GitHub repos
+# ---------------------------------------------------------------------------
+
+def make_repost(post_text="", **kwargs):
+    post = make_post(post_text=post_text, **kwargs)
+    post.is_repost = True
+    return post
+
+# --- Release signals ---
+
+def test_incoming_release_announcing():
+    tp = tag_post(make_repost("Announcing our latest model update — now available."))
+    assert "incoming" in tp.tags
+
+def test_incoming_release_just_launched():
+    tp = tag_post(make_repost("We just launched v2.0 of our open-source framework."))
+    assert "incoming" in tp.tags
+
+def test_incoming_release_introducing():
+    tp = tag_post(make_repost("Introducing GPT-5 — now available to all users."))
+    assert "incoming" in tp.tags
+
+def test_incoming_release_version_string():
+    tp = tag_post(make_repost("v0.9.1 is out. Faster inference, lower memory footprint."))
+    assert "incoming" in tp.tags
+
+def test_incoming_release_now_available():
+    tp = tag_post(make_repost("Our new API is now available in public beta."))
+    assert "incoming" in tp.tags
+
+def test_incoming_release_variety():
+    phrases = [
+        "Just shipped the new release — check it out.",
+        "Now open-source. Star us on GitHub.",
+        "General availability starts today.",
+        "We're open-sourcing our entire training pipeline.",
+        "Release candidate for v3 is ready for testing.",
+    ]
+    for phrase in phrases:
+        tp = tag_post(make_repost(phrase))
+        assert "incoming" in tp.tags, f"Should tag incoming for: '{phrase}'"
+
+# --- GitHub signals ---
+
+def test_incoming_github_url():
+    tp = tag_post(make_repost("Check this out: github.com/openai/whisper"))
+    assert "incoming" in tp.tags
+
+def test_incoming_github_repo_phrase():
+    tp = tag_post(make_repost("Just open-sourced our new library. GitHub repo linked below."))
+    assert "incoming" in tp.tags
+
+def test_incoming_open_source_project():
+    tp = tag_post(make_repost("Open-source project for fine-tuning LLMs on consumer hardware."))
+    assert "incoming" in tp.tags
+
+# --- Gate: must be a repost ---
+
+def test_incoming_requires_repost():
+    post = make_post(post_text="Announcing our latest model — now available.")
+    post.is_repost = False
+    tp = tag_post(post)
+    assert "incoming" not in tp.tags
+
+def test_incoming_repost_without_release_or_github_not_tagged():
+    # Repost but no release or GitHub signal — should NOT qualify
+    tp = tag_post(make_repost("Scaling laws are the future. More compute, more intelligence."))
+    assert "incoming" not in tp.tags
+
+def test_incoming_default_not_tagged():
+    tp = tag_post(make_post())
+    assert "incoming" not in tp.tags
 
 
 if __name__ == "__main__":
