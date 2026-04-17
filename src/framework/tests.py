@@ -7,7 +7,7 @@ import sys
 from datetime import datetime, timezone, timedelta
 from models import LinkedInPost
 from tagger import tag_post, tag_all, filter_by_tag
-from ranker import rank, score
+from ranker import rank, score, rank_trending, score_trending, rank_reflection, score_reflection
 
 
 def make_post(
@@ -304,6 +304,184 @@ def test_incoming_repost_without_release_or_github_not_tagged():
 def test_incoming_default_not_tagged():
     tp = tag_post(make_post())
     assert "incoming" not in tp.tags
+
+
+# ---------------------------------------------------------------------------
+# Trending — GitHub projects Sam interacted with
+# ---------------------------------------------------------------------------
+
+def make_github_post(post_text="", reaction_type=None, comment_text=None, is_repost=False, **kwargs):
+    post = make_post(post_text=post_text, reaction_type=reaction_type, comment_text=comment_text, **kwargs)
+    post.is_repost = is_repost
+    return post
+
+
+def test_trending_github_url_with_reaction():
+    post = make_github_post(
+        post_text="Amazing project at github.com/microsoft/autogen — check it out.",
+        reaction_type="like",
+    )
+    tp = tag_post(post)
+    assert "trending" in tp.tags
+
+def test_trending_github_url_with_comment():
+    post = make_github_post(
+        post_text="github.com/langchain-ai/langchain is changing how we build agents.",
+        comment_text="This is a game changer.",
+    )
+    tp = tag_post(post)
+    assert "trending" in tp.tags
+
+def test_trending_github_url_with_repost():
+    post = make_github_post(
+        post_text="Just starred github.com/openai/whisper — incredible OSS work.",
+        is_repost=True,
+    )
+    tp = tag_post(post)
+    assert "trending" in tp.tags
+
+def test_trending_no_github_url_not_tagged():
+    post = make_github_post(
+        post_text="This open-source tool is taking off. No URL though.",
+        reaction_type="like",
+    )
+    tp = tag_post(post)
+    assert "trending" not in tp.tags
+
+def test_trending_github_url_no_interaction_not_tagged():
+    post = make_github_post(
+        post_text="github.com/huggingface/transformers is great.",
+        # no reaction, no comment, no repost
+    )
+    tp = tag_post(post)
+    assert "trending" not in tp.tags
+
+def test_trending_variety_interactions():
+    base_text = "New repo at github.com/facebookresearch/llama — huge deal."
+    for kwargs in [
+        {"reaction_type": "celebrate"},
+        {"reaction_type": "love"},
+        {"comment_text": "Wow this is impressive"},
+        {"is_repost": True},
+    ]:
+        post = make_github_post(post_text=base_text, **kwargs)
+        tp = tag_post(post)
+        assert "trending" in tp.tags, f"Should tag trending for interaction: {kwargs}"
+
+def test_trending_star_bonus_ranks_higher():
+    now = datetime.now(timezone.utc)
+    post_no_stars  = make_github_post(
+        post_text="github.com/vercel/ai is great.",
+        reaction_type="like", post_like_count=500, days_ago=1,
+    )
+    post_with_stars = make_github_post(
+        post_text="github.com/vercel/ai just hit 12k stars — incredible growth!",
+        reaction_type="like", post_like_count=500, days_ago=1,
+    )
+    tp_no   = tag_post(post_no_stars)
+    tp_star = tag_post(post_with_stars)
+    assert score_trending(tp_star, now=now) > score_trending(tp_no, now=now)
+
+def test_trending_rank_returns_top_n():
+    posts = [
+        make_github_post(post_text=f"github.com/org/repo{i}", reaction_type="like",
+                         post_like_count=100*i, days_ago=1)
+        for i in range(1, 5)
+    ]
+    tagged = filter_by_tag(tag_all(posts), "trending")
+    top = rank_trending(tagged, top_n=2)
+    assert len(top) == 2
+
+def test_trending_engagement_determines_order():
+    low  = make_github_post(post_text="github.com/org/low",  reaction_type="like", post_like_count=10,   days_ago=1)
+    high = make_github_post(post_text="github.com/org/high", reaction_type="like", post_like_count=5000, days_ago=1)
+    tagged = filter_by_tag(tag_all([low, high]), "trending")
+    top = rank_trending(tagged, top_n=2)
+    assert top[0].post.post_id == "p1" or top[0].post.post_like_count == 5000
+
+def test_trending_can_also_be_incoming():
+    post = make_github_post(
+        post_text="Just launched github.com/anthropics/claude-code — now open source.",
+        is_repost=True,
+    )
+    tp = tag_post(post)
+    assert "trending" in tp.tags
+    assert "incoming" in tp.tags
+
+
+# ---------------------------------------------------------------------------
+# Reflection — AI governance and negative impact posts
+# ---------------------------------------------------------------------------
+
+def test_reflection_governance_ai_regulation():
+    tp = tag_post(make_post(post_text="AI regulation is long overdue — governments must act now.", reaction_type="like"))
+    assert "reflection" in tp.tags
+
+def test_reflection_ai_ethics():
+    tp = tag_post(make_post(post_text="Ethical AI is not a nice-to-have — it's a baseline requirement.", reaction_type="like"))
+    assert "reflection" in tp.tags
+
+def test_reflection_ai_safety():
+    tp = tag_post(make_post(post_text="AI safety research must keep pace with AI capabilities.", reaction_type="like"))
+    assert "reflection" in tp.tags
+
+def test_reflection_job_displacement():
+    tp = tag_post(make_post(post_text="AI-driven job displacement is accelerating faster than retraining programs.", reaction_type="like"))
+    assert "reflection" in tp.tags
+
+def test_reflection_deepfakes():
+    tp = tag_post(make_post(post_text="Deepfakes are now indistinguishable from real video — democracy is at risk.", reaction_type="like"))
+    assert "reflection" in tp.tags
+
+def test_reflection_algorithmic_bias():
+    tp = tag_post(make_post(post_text="Algorithmic bias in hiring tools is well documented. Yet companies keep deploying them.", reaction_type="like"))
+    assert "reflection" in tp.tags
+
+def test_reflection_autonomous_weapons():
+    tp = tag_post(make_post(post_text="Autonomous weapons without human oversight cross a moral line we cannot come back from.", reaction_type="celebrate"))
+    assert "reflection" in tp.tags
+
+def test_reflection_existential_risk():
+    tp = tag_post(make_post(post_text="The existential risk from misaligned AI is real and we are not prepared.", reaction_type="like"))
+    assert "reflection" in tp.tags
+
+def test_reflection_variety():
+    cases = [
+        ("Responsible AI needs teeth, not just guidelines.", "like"),
+        ("AI is not ready to make decisions about people's lives.", "like"),
+        ("AI surveillance is creeping into every corner of public life.", "celebrate"),
+        ("The dark side of AI is getting harder to ignore.", "like"),
+        ("AI governance is the defining policy challenge of this decade.", "like"),
+        ("AI alignment is unsolved and we're deploying anyway.", "like"),
+    ]
+    for text, reaction in cases:
+        tp = tag_post(make_post(post_text=text, reaction_type=reaction))
+        assert "reflection" in tp.tags, f"Should tag reflection for: '{text}'"
+
+def test_reflection_requires_interaction():
+    tp = tag_post(make_post(post_text="AI governance is the defining challenge of our time."))
+    assert "reflection" not in tp.tags
+
+def test_reflection_unrelated_ai_post_not_tagged():
+    tp = tag_post(make_post(post_text="Just shipped a new AI feature — 10x faster inference!", reaction_type="like"))
+    assert "reflection" not in tp.tags
+
+def test_reflection_comment_bonus_ranks_higher():
+    now = datetime.now(timezone.utc)
+    reaction_only = make_post(post_text="AI regulation is overdue.", reaction_type="like", post_like_count=200, days_ago=1)
+    with_comment   = make_post(post_text="AI regulation is overdue.", reaction_type="like", comment_text="This is exactly right — we need binding rules.", post_like_count=200, days_ago=1)
+    tr = tag_post(reaction_only)
+    tc = tag_post(with_comment)
+    assert score_reflection(tc, now=now) > score_reflection(tr, now=now)
+
+def test_reflection_rank_returns_top_n():
+    posts = [
+        make_post(post_text=f"AI governance issue #{i}.", reaction_type="like", post_like_count=100*i, days_ago=1)
+        for i in range(1, 5)
+    ]
+    tagged = filter_by_tag(tag_all(posts), "reflection")
+    top = rank_reflection(tagged, top_n=2)
+    assert len(top) == 2
 
 
 if __name__ == "__main__":

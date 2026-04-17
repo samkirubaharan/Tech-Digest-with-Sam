@@ -126,6 +126,91 @@ def _is_own_article(post: LinkedInPost) -> bool:
     return post.is_own_post
 
 
+# ---------------------------------------------------------------------------
+# Trending — GitHub projects Sam interacted with (any reaction, comment, repost).
+# Stricter than Incoming: requires a real github.com/org/repo URL.
+# Ranking (in ranker.py) weights engagement heavily to surface what's blowing up.
+# ---------------------------------------------------------------------------
+_GITHUB_URL_RE = re.compile(r"github\.com/[\w\-\.]+/[\w\-\.]+", re.IGNORECASE)
+
+
+def _has_github_url(post: LinkedInPost) -> bool:
+    return bool(_GITHUB_URL_RE.search(post.post_text))
+
+
+def _has_any_interaction(post: LinkedInPost) -> bool:
+    return bool(post.reaction_type or post.comment_text or post.is_repost)
+
+
+def _is_trending(post: LinkedInPost) -> bool:
+    """GitHub project post that Sam interacted with in any way."""
+    return _has_github_url(post) and _has_any_interaction(post)
+
+
+# ---------------------------------------------------------------------------
+# Reflection — posts about AI governance, regulation, or negative societal
+# effects that Sam engaged with.  Any interaction qualifies (Sam choosing to
+# react or comment signals the post gave him pause).
+# ---------------------------------------------------------------------------
+REFLECTION_PATTERNS = [
+    # Governance & regulation
+    r"\bai governance\b",
+    r"\bai regulation\b",
+    r"\bai policy\b",
+    r"\bai oversight\b",
+    r"\bai legislation\b",
+    r"\bregulat(e|ing|ion of) ai\b",
+    r"\bai act\b",
+    r"\bresponsible ai\b",
+    r"\bai ethics\b",
+    r"\bethical ai\b",
+    r"\bai accountability\b",
+    r"\bai transparency\b",
+    # Safety & risk
+    r"\bai safety\b",
+    r"\bai alignment\b",
+    r"\bai risk\b",
+    r"\bexistential risk\b",
+    r"\bai (is )?(moving )?too fast\b",
+    r"\bpause ai\b",
+    r"\bai moratorium\b",
+    r"\bfrontier (ai )?risk\b",
+    # Negative societal effects
+    r"\bjob (displacement|loss(es)?|cut(s|ting)?)\b.*\bai\b",
+    r"\bai.*\bjob (displacement|loss(es)?|cut(s|ting)?)\b",
+    r"\breplac(e|ing) (human|worker|job)s?\b",
+    r"\bautomation (layoff|job loss|unemployment)\b",
+    r"\bai bias\b",
+    r"\balgorithmic bias\b",
+    r"\bdiscriminat(ory|ion).{0,30}ai\b",
+    r"\bai.{0,30}discriminat(ory|ion)\b",
+    r"\bdeepfakes?\b",
+    r"\bai misinformation\b",
+    r"\bai disinformation\b",
+    r"\bsynthetic media\b",
+    r"\bai surveillance\b",
+    r"\bfacial recognition\b",
+    r"\bautonomous weapons?\b",
+    r"\bai weapon\b",
+    r"\bunintended consequences.{0,30}ai\b",
+    r"\bai.{0,30}unintended consequences\b",
+    r"\bdark side of ai\b",
+    r"\bdangers? of ai\b",
+    r"\bai harm\b",
+    r"\bai (is )?not ready\b",
+    r"\bwe need to (talk|think) about ai\b",
+]
+
+_REFLECTION_RE = re.compile("|".join(REFLECTION_PATTERNS), re.IGNORECASE)
+
+
+def _is_reflection(post: LinkedInPost) -> bool:
+    """Post touches AI governance or negative AI effects and Sam interacted."""
+    if not _has_any_interaction(post):
+        return False
+    return bool(_REFLECTION_RE.search(post.post_text))
+
+
 def tag_post(post: LinkedInPost) -> TaggedPost:
     """Return a TaggedPost with all applicable section tags."""
     tags = []
@@ -141,6 +226,12 @@ def tag_post(post: LinkedInPost) -> TaggedPost:
 
     if _is_incoming(post):
         tags.append("incoming")
+
+    if _is_trending(post):
+        tags.append("trending")
+
+    if _is_reflection(post):
+        tags.append("reflection")
 
     return TaggedPost(post=post, tags=tags)
 

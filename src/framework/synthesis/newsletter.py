@@ -11,7 +11,7 @@ from pathlib import Path
 
 from loader import load
 from tagger import tag_all, filter_by_tag
-from ranker import rank
+from ranker import rank, rank_trending, rank_reflection
 from formatter import render_chat, print_chat
 
 
@@ -72,6 +72,35 @@ def main():
         print(f"\n#{i} (score: {tp.score})")
         print(f"  Author:   {p.author_name} — {p.author_headline}")
         print(f"  URL:      {p.post_url}")
+        print(f"  Preview:  {p.post_text[:200]}...")
+
+    # --- Trending ---
+    trending_posts = filter_by_tag(tagged, "trending")
+    top_trending   = rank_trending(trending_posts, top_n=args.top_n)
+
+    print("\n=== TRENDING ===")
+    if not top_trending:
+        print("\n  [no trending GitHub projects found in this dataset]")
+    for i, tp in enumerate(top_trending, 1):
+        p = tp.post
+        print(f"\n#{i} (score: {tp.score})")
+        print(f"  Author:   {p.author_name} — {p.author_headline}")
+        print(f"  URL:      {p.post_url}")
+        print(f"  Preview:  {p.post_text[:200]}...")
+
+    # --- Reflection ---
+    reflection_posts = filter_by_tag(tagged, "reflection")
+    top_reflection   = rank_reflection(reflection_posts, top_n=args.top_n)
+
+    print("\n=== REFLECTION ===")
+    if not top_reflection:
+        print("\n  [no AI governance or impact posts found in this dataset]")
+    for i, tp in enumerate(top_reflection, 1):
+        p = tp.post
+        print(f"\n#{i} (score: {tp.score})")
+        print(f"  Author:   {p.author_name} — {p.author_headline}")
+        print(f"  URL:      {p.post_url}")
+        print(f"  Comment:  {p.comment_text or '—'}")
         print(f"  Preview:  {p.post_text[:200]}...")
 
 
