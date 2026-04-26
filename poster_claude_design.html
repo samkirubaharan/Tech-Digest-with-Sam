@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1200">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { width: 1200px; height: 628px; overflow: hidden; font-family: 'Segoe UI', Arial, sans-serif; background: #0a0a0f; }
+
+  .poster {
+    width: 1200px;
+    height: 628px;
+    position: relative;
+    background: linear-gradient(135deg, #0a0a0f 0%, #12101a 50%, #0d0d18 100%);
+    display: flex;
+    overflow: hidden;
+  }
+
+  /* Animated grid background */
+  .grid-bg {
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(208, 112, 80, 0.06) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(208, 112, 80, 0.06) 1px, transparent 1px);
+    background-size: 48px 48px;
+  }
+
+  /* Glow orbs */
+  .orb1 {
+    position: absolute;
+    width: 420px; height: 420px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(208,112,80,0.18) 0%, transparent 70%);
+    top: -100px; left: -80px;
+  }
+  .orb2 {
+    position: absolute;
+    width: 360px; height: 360px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(120,80,220,0.14) 0%, transparent 70%);
+    bottom: -80px; right: 180px;
+  }
+  .orb3 {
+    position: absolute;
+    width: 200px; height: 200px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(80,180,220,0.10) 0%, transparent 70%);
+    top: 50px; right: 80px;
+  }
+
+  /* Left content */
+  .left {
+    position: relative;
+    z-index: 10;
+    flex: 0 0 680px;
+    padding: 52px 56px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  .badge-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .badge-hot {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: linear-gradient(135deg, #d07050, #e8502a);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    padding: 5px 14px;
+    border-radius: 20px;
+  }
+
+  .badge-hot .dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: #fff;
+    animation: pulse 1.4s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(0.7); }
+  }
+
+  .badge-new {
+    display: inline-flex;
+    align-items: center;
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.15);
+    color: rgba(255,255,255,0.7);
+    font-size: 11px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 5px 12px;
+    border-radius: 20px;
+  }
+
+  .headline {
+    margin-top: 20px;
+  }
+
+  .headline .label {
+    font-size: 13px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #d07050;
+    font-weight: 600;
+    margin-bottom: 10px;
+  }
+
+  .headline h1 {
+    font-size: 52px;
+    font-weight: 800;
+    line-height: 1.08;
+    color: #ffffff;
+    letter-spacing: -1px;
+  }
+
+  .headline h1 span {
+    background: linear-gradient(135deg, #e06040, #f08060);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .subtitle {
+    margin-top: 14px;
+    font-size: 17px;
+    color: rgba(255,255,255,0.55);
+    line-height: 1.5;
+    max-width: 520px;
+  }
+
+  /* Pills */
+  .pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 28px;
+  }
+
+  .pill {
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 500;
+    border: 1px solid;
+  }
+
+  .pill-orange { color: #e07050; border-color: rgba(224,112,80,0.4); background: rgba(224,112,80,0.08); }
+  .pill-purple { color: #a080e0; border-color: rgba(160,128,224,0.4); background: rgba(160,128,224,0.08); }
+  .pill-blue   { color: #60b0d8; border-color: rgba(96,176,216,0.4); background: rgba(96,176,216,0.08); }
+  .pill-green  { color: #60c890; border-color: rgba(96,200,144,0.4); background: rgba(96,200,144,0.08); }
+
+  .author-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 4px;
+  }
+
+  .avatar {
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #d07050, #7050c0);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 17px;
+    font-weight: 800;
+    color: #fff;
+    flex-shrink: 0;
+  }
+
+  .author-info .name {
+    font-size: 14px;
+    font-weight: 600;
+    color: rgba(255,255,255,0.85);
+  }
+
+  .author-info .handle {
+    font-size: 12px;
+    color: rgba(255,255,255,0.4);
+  }
+
+  /* Right panel */
+  .right {
+    position: relative;
+    z-index: 10;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 10px;
+    padding: 40px 48px 40px 20px;
+  }
+
+  .card {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 12px;
+    padding: 14px 18px;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    transition: background 0.2s;
+  }
+
+  .card-icon {
+    font-size: 20px;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  .card-text .ctitle {
+    font-size: 13px;
+    font-weight: 700;
+    color: rgba(255,255,255,0.85);
+    letter-spacing: 0.3px;
+  }
+
+  .card-text .cdesc {
+    font-size: 12px;
+    color: rgba(255,255,255,0.42);
+    margin-top: 2px;
+    line-height: 1.4;
+  }
+
+  /* divider line */
+  .vline {
+    position: absolute;
+    left: 680px;
+    top: 40px;
+    bottom: 40px;
+    width: 1px;
+    background: linear-gradient(to bottom, transparent, rgba(255,255,255,0.1) 30%, rgba(255,255,255,0.1) 70%, transparent);
+    z-index: 10;
+  }
+
+  .date-tag {
+    font-size: 11px;
+    color: rgba(255,255,255,0.3);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+</style>
+</head>
+<body>
+<div class="poster">
+  <div class="grid-bg"></div>
+  <div class="orb1"></div>
+  <div class="orb2"></div>
+  <div class="orb3"></div>
+
+  <div class="left">
+    <div>
+      <div class="badge-row">
+        <div class="badge-hot"><span class="dot"></span> Hot Topic</div>
+        <div class="badge-new">🚀 Just Released</div>
+        <div class="date-tag">April 2026</div>
+      </div>
+
+      <div class="headline">
+        <div class="label">Hands-on First Impression</div>
+        <h1>Claude <span>Design</span><br>Is Here.</h1>
+        <p class="subtitle">Anthropic's new visual design tool — I spent a full session pushing it to its limits so you don't have to.</p>
+      </div>
+
+      <div class="pills">
+        <div class="pill pill-orange">⚡ Usage Limits Revealed</div>
+        <div class="pill pill-purple">🎨 Tweak Controls</div>
+        <div class="pill pill-blue">💬 Comment Annotations</div>
+        <div class="pill pill-green">📤 PDF & HTML Export</div>
+      </div>
+    </div>
+
+    <div class="author-row">
+      <div class="avatar">S</div>
+      <div class="author-info">
+        <div class="name">Sam · Tech Digest with Sam</div>
+        <div class="handle">LinkedIn · Newsletter · Medium</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="vline"></div>
+
+  <div class="right">
+    <div class="card">
+      <div class="card-icon">🧠</div>
+      <div class="card-text">
+        <div class="ctitle">Intelligence Capacity</div>
+        <div class="cdesc">Opus 4.7 behaves differently inside Claude Design — one design at a time is the sweet spot.</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-icon">⏱️</div>
+      <div class="card-text">
+        <div class="ctitle">Weekly Limit, Not Rolling</div>
+        <div class="cdesc">Pro plan quota depletes fast. It's a weekly reset — not the 5-hour window you might expect.</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-icon">🔁</div>
+      <div class="card-text">
+        <div class="ctitle">Auto Verification</div>
+        <div class="cdesc">Every iteration triggers a Fork Verifier Agent that checks and fine-tunes the output.</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-icon">🎛️</div>
+      <div class="card-text">
+        <div class="ctitle">Tweak Mode</div>
+        <div class="cdesc">One-shot tweaks become live toggle controls — opacity, visibility, accent tint, icon show/hide.</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-icon">💡</div>
+      <div class="card-text">
+        <div class="ctitle">Comments Over Rewrites</div>
+        <div class="cdesc">Targeted comment annotations are cheaper than rerunning the full left-pane chat.</div>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

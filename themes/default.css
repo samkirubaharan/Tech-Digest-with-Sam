@@ -1,0 +1,144 @@
+
+body {
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f4; /* Subtle background for the "email client" view */
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    color: #333333;
+    line-height: 1.6;
+}
+
+.newsletter-container {
+    max-width: 600px;
+    margin: 40px auto;
+    background-color: #ffffff;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+}
+
+.header {
+    padding: 40px 30px;
+    text-align: center;
+    border-bottom: 1px solid #eeeeee;
+}
+
+.header h1 {
+    margin: 0;
+    font-size: 24px;
+    letter-spacing: -0.5px;
+    color: #1a1a1a;
+}
+
+.section {
+    padding: 40px 30px;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+h2 { font-size: 22px; margin-top: 0; color: #1a1a1a; }
+h3 { font-size: 14px; margin-top: 0; text-transform: uppercase; letter-spacing: 1px; }
+p { margin-bottom: 1.2em; font-size: 16px; }
+
+.btn {
+    display: inline-block;
+    padding: 10px 20px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 14px;
+    transition: opacity 0.2s;
+}
+
+/* --- ARTICLE TYPE MODULES (COLOR FOCUSED) --- */
+
+/* 1. LOVE IT! (Rose) */
+.love-it {
+    border-left: 6px solid #FF477E;
+    background-color: #FFF0F4;
+}
+.love-it h3 { color: #FF477E; }
+
+/* 2. TRENDING (Blue) */
+.tag-trending {
+    background-color: #007BFF;
+    color: #ffffff;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 800;
+    display: inline-block;
+    margin-bottom: 12px;
+}
+.btn-trending { border: 2px solid #007BFF; color: #007BFF; }
+
+/* 3. REFLECT (Plum) */
+.reflect {
+    background-color: #6D597A;
+    color: #ffffff;
+}
+.reflect h2, .reflect p { color: #ffffff; }
+.reflect blockquote {
+    border-left: 3px solid #ffffff;
+    margin: 20px 0;
+    padding-left: 20px;
+    font-style: italic;
+    font-size: 19px;
+    color: #ffffff;
+}
+
+/* 4. INCOMING (Amber) */
+.incoming {
+    border: 2px dashed #FF9F1C;
+    background-color: #FFF9F0;
+    border-radius: 8px;
+}
+.incoming h3 { color: #FF9F1C; }
+
+/* 5. MR & MS CURIOUS (Teal/Chat) */
+.chat-container {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-top: 20px;
+}
+.bubble {
+    max-width: 85%;
+    padding: 12px 16px;
+    border-radius: 15px;
+    font-size: 14px;
+}
+.bubble.mr {
+    align-self: flex-start;
+    background-color: #F1F1F1;
+    color: #333333;
+    border-bottom-left-radius: 2px;
+}
+.bubble.ms {
+    align-self: flex-end;
+    background-color: #2EC4B6;
+    color: #ffffff;
+    border-bottom-right-radius: 2px;
+    text-align: right;
+}
+.chat-name { font-weight: 800; font-size: 10px; display: block; margin-bottom: 4px; opacity: 0.7; }
+
+/* 6. THE BYLINE (Slate) */
+.byline {
+    background-color: #ffffff;
+}
+.byline h2 { color: #212529; }
+.author-meta {
+    font-size: 13px;
+    color: #666666;
+    border-top: 1px solid #eeeeee;
+    padding-top: 20px;
+    margin-top: 20px;
+}
+
+.footer {
+    padding: 40px 30px;
+    background-color: #fafafa;
+    text-align: center;
+    font-size: 12px;
+    color: #999999;
+}
