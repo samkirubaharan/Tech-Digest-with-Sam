@@ -22,4 +22,5 @@ Tech Digest with Sam brings you the latest news on Tech & AI.
 | Love It! | OpenAI Images 2.0: Try This Prompt | 8 |
 | Love It! | Sam Altman's 6 Principles Worth More Than Most Business Books | 9 |
 | Incoming | Kiro CLI 2.0: Headless, Windows-Native, and Generally Available | 10 |
-| Mr & Ms Curious | AI Cannot Deliver Therapy — Two States Just Made It Law | 11 |
+| Love It! | /btw: The Side Chat That Keeps Your Context Clean | 11 |
+| Mr & Ms Curious | AI Cannot Deliver Therapy — Two States Just Made It Law | 12 |
