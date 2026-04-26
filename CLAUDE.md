@@ -73,3 +73,7 @@ After all synth files are written, update `newsletter/current/front_cover.md`:
 ## back_cover.md
 
 Carry forward from the previous week unchanged, updating only the week number in `## Week N, Year` and the footer line.
+
+## Commit Policy
+
+**Never commit after writing synth files.** Sam reviews and edits the content first. Only commit and push when he explicitly says to.
